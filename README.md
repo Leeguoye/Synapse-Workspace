@@ -2,17 +2,13 @@
 
 <p align="center">
     <picture>
-        <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/your-username/synapse/main/assets/logo-light.svg">
-        <img src="src/assets/desktopIcon.svg" alt="Synapse" width="500">
+        <source media="(prefers-color-scheme: light)" srcset="src/assets/desktopIcon.svg">
+        <img src="src/assets/desktopIcon.png" alt="Synapse" width="100">
     </picture>
 </p>
 
 <p align="center">
-  <strong>Visual No-Code / Low-Code Automation Engine for Google Workspace.</strong>
-</p>
-
-<p align="center">
-  <a href="#english">English</a> • <a href="#traditional-chinese">繁體中文</a>
+  <strong>Yet another vibe code trash.</strong>
 </p>
 
 <p align="center">
