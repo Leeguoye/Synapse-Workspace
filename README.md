@@ -3,7 +3,7 @@
 <p align="center">
     <picture>
         <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/your-username/synapse/main/assets/logo-light.svg">
-        <img src="https://raw.githubusercontent.com/your-username/synapse/main/assets/logo-dark.svg" alt="Synapse" width="500">
+        <img src="src/assets/desktopIcon.svg" alt="Synapse" width="500">
     </picture>
 </p>
 
