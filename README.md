@@ -1,73 +1,47 @@
-# React + TypeScript + Vite
+# Synapse — Hybrid War Room Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+    <picture>
+        <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/your-username/synapse/main/assets/logo-light.svg">
+        <img src="https://raw.githubusercontent.com/your-username/synapse/main/assets/logo-dark.svg" alt="Synapse" width="500">
+    </picture>
+</p>
 
-Currently, two official plugins are available:
+<p align="center">
+  <strong>Visual No-Code / Low-Code Automation Engine for Google Workspace.</strong>
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<p align="center">
+  <a href="#english">English</a> • <a href="#traditional-chinese">繁體中文</a>
+</p>
 
-## React Compiler
+<p align="center">
+  <a href="https://github.com/your-username/synapse/releases"><img src="https://img.shields.io/github/v/release/your-username/synapse?include_prereleases&style=for-the-badge&color=blue" alt="Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&style=for-the-badge" alt="React 19"></a>
+  <a href="https://www.electronjs.org/"><img src="https://img.shields.io/badge/Electron-40-47848F?logo=electron&style=for-the-badge" alt="Electron 40"></a>
+</p>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+<a id="english"></a>
+## 🇺🇸 English
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Synapse** is a desktop-grade "Hybrid War Room Platform". It bridges the gap between raw data and actionable insights by integrating **Google Workspace**, local databases, and **Python scripts** through a high-performance visual workflow engine.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 📥 Download & Install
+To get started with Synapse, download the latest installer for your operating system (Windows/macOS/Linux) from our **[Releases Page](https://github.com/your-username/synapse/releases)**.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 🚀 Key Highlights
+- **Visual Programming Pipeline** — An "infinite canvas" workflow editor with dual-mode architecture: **Logic Mode** for developers and **Presentation Mode** for clean dashboard display.
+- **Triggers & Scheduling** — Built-in `CronJob` support for automated tasks.
+- **BYOK Credential Security** — Local `AES-256-GCM` encryption for Google OAuth tokens and API keys.
+- **Virtual File System (VFS)** — Seamless integration with Google Drive and logic-linked views.
+- **Plugin SDK** — Extensible architecture with sandboxed Node.js `vm` execution.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 🛠 Development (From Source)
+If you wish to contribute or build from source:
+```bash
+git clone [https://github.com/your-username/synapse.git](https://github.com/your-username/synapse.git)
+pnpm install
+pnpm dev
