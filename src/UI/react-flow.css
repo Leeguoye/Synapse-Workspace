@@ -1,0 +1,120 @@
+/* 
+ * 統一 React Flow 樣式定義 (Canvas & GraphView)
+ * 將原本散落在各個元件中的內聯樣式集中管理，方便統一顏色與字體。
+ */
+
+/* 隱藏/顯示連接點 (Handles) 動畫 */
+.synapse-react-flow .react-flow__handle,
+.nexus-react-flow .react-flow__handle { 
+    opacity: 0; 
+    transition: opacity 0.15s ease; 
+}
+.synapse-react-flow .react-flow__node:hover .react-flow__handle,
+.synapse-react-flow .react-flow__node.selected .react-flow__handle,
+.nexus-react-flow .react-flow__node:hover .react-flow__handle,
+.nexus-react-flow .react-flow__node.selected .react-flow__handle { 
+    opacity: 1; 
+}
+
+.synapse-react-flow.is-interacting iframe,
+.nexus-react-flow.is-interacting iframe { 
+    pointer-events: none !important; 
+}
+
+.synapse-react-flow,
+.nexus-react-flow {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.synapse-react-flow .node-base,
+.nexus-react-flow .node-base {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.synapse-react-flow .node-base:hover,
+.nexus-react-flow .node-base:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+.synapse-react-flow .react-flow__controls,
+.nexus-react-flow .react-flow__controls {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--color-theme-700);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--color-theme-800);
+}
+
+.synapse-react-flow .react-flow__controls-button,
+.nexus-react-flow .react-flow__controls-button {
+    background-color: transparent;
+    border-bottom: 1px solid var(--color-theme-700);
+    fill: var(--color-theme-400);
+    color: var(--color-theme-400);
+    transition: all 0.2s ease;
+}
+
+/* Panel Slider CSS (from CanvasPropertyPanel) */
+input[type=range].panel-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range].panel-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    background: var(--color-theme-300);
+    cursor: pointer;
+    margin-top: -4px;
+    border: 1px solid var(--color-theme-600);
+}
+input[type=range].panel-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: var(--color-theme-700);
+    border-radius: 2px;
+}
+input[type=range].panel-slider:focus {
+    outline: none;
+}
+input[type=range].panel-slider:focus::-webkit-slider-thumb {
+    background: var(--color-theme-50);
+}
+
+/* 自訂節點的通用基礎樣式 (如果需要) */
+.nexus-react-flow .node-base {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.nexus-react-flow .node-base:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* 統一 Controls 按鈕 (左下/右下) 樣式 */
+.nexus-react-flow .react-flow__controls {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--color-theme-700);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--color-theme-800);
+}
+
+.nexus-react-flow .react-flow__controls-button {
+    background-color: transparent;
+    border-bottom: 1px solid var(--color-theme-700);
+    fill: var(--color-theme-400);
+    color: var(--color-theme-400);
+    transition: all 0.2s ease;
+}
+
+.nexus-react-flow .react-flow__controls-button:last-child {
+    border-bottom: none;
+}
+
+.nexus-react-flow .react-flow__controls-button:hover {
+    background-color: var(--color-theme-700);
+    fill: var(--color-theme-50);
+    color: var(--color-theme-50);
+}
+

@@ -1,0 +1,36 @@
+# --- 敏感資訊 ---
+# Google API 憑證
+client_secret.json
+credentials.json
+token.json
+
+# 本地數據庫 (SQLite)
+*.sqlite
+*.db
+*.db-journal
+.env
+
+# Python 環境與快取 (模組 D 預留)
+__pycache__/
+.venv/
+env/
+
+# OS 暫存
+.DS_Store
+Thumbs.db
+*.log
+
+# --- 編譯與測試產物 ---
+node_modules
+dist
+dist-electron
+dist-react
+playwright-report
+test-results
+
+/src/generated/prisma
+
+# agent
+.agents
+
+/_testPlugins/*
