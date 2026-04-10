@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/your-username/synapse/releases"><img src="https://img.shields.io/github/v/release/your-username/synapse?include_prereleases&style=for-the-badge&color=blue" alt="Version"></a>
+  <a href="https://github.com/Leeguoye/Synapse-Workspace/releases"><img src="https://img.shields.io/github/v/release/Leeguoye/Synapse-Workspace?include_prereleases&style=for-the-badge&color=blue" alt="Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&style=for-the-badge" alt="React 19"></a>
   <a href="https://www.electronjs.org/"><img src="https://img.shields.io/badge/Electron-40-47848F?logo=electron&style=for-the-badge" alt="Electron 40"></a>
