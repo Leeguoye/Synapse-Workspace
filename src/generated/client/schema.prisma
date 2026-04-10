@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model DriveFile {
+  id                String    @id
+  name              String
+  mimeType          String
+  parentId          String?
+  description       String?
+  appProperties     String?
+  linkUrl           String?
+  linkIcon          String?
+  linkColor         String?
+  size              String?
+  iconLink          String?
+  webViewLink       String?
+  thumbnailLink     String?
+  folderColorRgb    String?
+  isTemplate        Boolean   @default(false)
+  starred           Boolean   @default(false)
+  trashed           Boolean   @default(false)
+  ownedByMe         Boolean   @default(true)
+  shared            Boolean   @default(false)
+  canEdit           Boolean   @default(true)
+  ownerName         String?
+  ownerPhoto        String?
+  sharedWithMeTime  DateTime?
+  createdTime       DateTime?
+  modifiedTime      DateTime?
+  syncedAt          DateTime  @default(now())
+  isDirty           Boolean   @default(false)
+  localModifiedTime DateTime?
+  localBody         String?
+  tags              Tag[]     @relation("DriveFileToTag")
+
+  @@index([parentId])
+  @@index([mimeType])
+  @@index([trashed])
+  @@index([starred])
+  @@index([sharedWithMeTime])
+}
+
+model SystemSettings {
+  key   String @id
+  value String
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  type      String
+  icon      String
+  mode      String
+  targetId  String?
+  color     String   @default("#3b82f6")
+  order     Int
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  workspaceId String?
+  lastUsed    DateTime    @default(now())
+  files       DriveFile[] @relation("DriveFileToTag")
+}
+
+model Credential {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  name      String
+  type      String
+  value     String?
+  filePath  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plugin {
+  id          String   @id @default(uuid())
+  pluginId    String   @unique
+  name        String
+  author      String?
+  version     String
+  description String?
+  isActive    Boolean  @default(false)
+  manifest    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Trigger {
+  id        String    @id @default(uuid())
+  name      String
+  type      String
+  value     String
+  canvasId  String
+  pluginId  String?
+  isActive  Boolean   @default(true)
+  lastFired DateTime?
+  config    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

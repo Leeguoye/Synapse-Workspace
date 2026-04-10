@@ -1,0 +1,33 @@
+{
+    "appId": "com.synapse.workspace",
+    "files": [
+        "dist-electron", 
+        "dist-react",
+        "src/assets",
+        { "from": "src/electron/generated/client", "to": "dist-electron/electron/generated/client" }
+    ],
+    "asarUnpack": [
+        "dist-electron/electron/generated/client/*.node"
+    ],
+    "icon": "src/assets/desktopIcon.png",
+    "extraResources": [
+        { "from": "prisma/template.db", "to": "prisma/template.db" },
+        { "from": "public/icons", "to": "icons" }
+    ],
+    "mac": {
+        "target": "dmg"
+    },
+    "linux": {
+        "target": "AppImage",
+        "category": "Utility"
+    },
+    "win": {
+        "target": ["portable", "nsis"]
+    },
+    "nsis": {
+    "oneClick": false,                        
+    "allowToChangeInstallationDirectory": true, 
+    "createDesktopShortcut": true,       
+    "createStartMenuShortcut": true
+    }
+}
