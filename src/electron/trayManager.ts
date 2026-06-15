@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, Tray, nativeImage } from 'electron';
 import path from 'path';
+import { t } from '../language';
 
 let tray: Tray | null = null;
 
@@ -34,7 +35,7 @@ export function initTray(getWindow: () => BrowserWindow | null, setForceQuit: (v
 
         return Menu.buildFromTemplate([
             {
-                label: isVisible ? '隱藏視窗' : '顯示視窗',
+                label: isVisible ? t.titleBar.trayHide : t.titleBar.trayShow,
                 click: () => {
                     const w = getWindow();
                     if (!w) return;
@@ -50,7 +51,7 @@ export function initTray(getWindow: () => BrowserWindow | null, setForceQuit: (v
             },
             { type: 'separator' },
             {
-                label: '結束 Synapse',
+                label: t.titleBar.trayQuit,
                 click: () => {
                     setForceQuit(true);
                     app.quit();
@@ -83,6 +84,13 @@ export function initTray(getWindow: () => BrowserWindow | null, setForceQuit: (v
             win.focus();
         }
     });
+
+    // 自動同步：當視窗手動顯示或隱藏時，更新系統匣選單標籤
+    const win = getWindow();
+    if (win) {
+        win.on('show', () => tray?.setContextMenu(buildMenu()));
+        win.on('hide', () => tray?.setContextMenu(buildMenu()));
+    }
 }
 
 /**

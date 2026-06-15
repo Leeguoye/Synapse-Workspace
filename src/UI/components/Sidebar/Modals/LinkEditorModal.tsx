@@ -71,11 +71,11 @@ const LinkEditorModal: React.FC<LinkEditorModalProps> = ({ initialName, initialU
           <div className="flex-1 space-y-4">
             <div>
               <label className="block text-[10px] text-theme-400 mb-1 uppercase tracking-wider">{t.sidebar.shortcutName}</label>
-              <input value={name} onChange={e => setName(e.target.value)} className="w-full bg-theme-950 border border-theme-700 rounded px-3 py-2 text-theme-200 text-sm focus:outline-none focus:border-primary-main" placeholder={t.sidebar.shortcutNamePlaceholder} />
+              <input value={name} onChange={e => setName(e.target.value)} className="w-full bg-theme-900 border border-theme-700 rounded px-3 py-2 text-theme-200 text-sm focus:outline-none focus:border-primary-main" placeholder={t.sidebar.shortcutNamePlaceholder} />
             </div>
             <div>
               <label className="block text-[10px] text-theme-400 mb-1 uppercase tracking-wider">{t.sidebar.targetUrl}</label>
-              <input value={url} onChange={e => setUrl(e.target.value)} className="w-full bg-theme-950 border border-theme-700 rounded px-3 py-2 text-theme-200 text-sm focus:outline-none focus:border-primary-main" placeholder="https://..." />
+              <input value={url} onChange={e => setUrl(e.target.value)} className="w-full bg-theme-900 border border-theme-700 rounded px-3 py-2 text-theme-200 text-sm focus:outline-none focus:border-primary-main" placeholder="https://..." />
             </div>
           </div>
         </div>

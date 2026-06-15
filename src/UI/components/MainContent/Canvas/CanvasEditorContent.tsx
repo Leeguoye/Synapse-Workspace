@@ -10,7 +10,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { Save, LayoutGrid, MonitorPlay, Settings, Check, ToggleRight, ToggleLeft } from 'lucide-react';
 import type { DriveFile } from '../../../../shared/types';
-import { buildEdge, makeTextNode, makeStickyNode, makeGroupNode, NODE_COLOR_THEMES, SNAP_GRID } from './canvasUtils';
+import { buildEdge, makeTextNode, makeStickyNode, makeGroupNode, NODE_COLOR_THEMES, SNAP_GRID, resolveNodeColors } from './canvasUtils';
 import type { EdgeStyleVariant, EdgeRouteType, CanvasNodeData, CanvasEdgeData, PortSchema } from './canvasTypes';
 import CanvasToolbar from './CanvasToolbar';
 import CanvasPropertyPanel from './CanvasPropertyPanel';
@@ -102,7 +102,43 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
   const [cronExpression, setCronExpression] = useState('*/5 * * * *');
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
-  const handleInteractStart = useCallback(() => setIsInteracting(true), []);
+
+  const [, setPast] = useState<{nodes: Node[], edges: Edge[]}[]>([]);
+  const [, setFuture] = useState<{nodes: Node[], edges: Edge[]}[]>([]);
+
+  const pushHistory = useCallback(() => {
+    setPast(p => [...p.slice(-49), { nodes: nodesRef.current, edges: edgesRef.current }]);
+    setFuture([]);
+  }, []);
+
+  const handleUndo = useCallback(() => {
+    setPast(p => {
+      if (p.length === 0) return p;
+      const previous = p[p.length - 1];
+      const newPast = p.slice(0, -1);
+      setFuture(f => [{ nodes: nodesRef.current, edges: edgesRef.current }, ...f]);
+      setNodes(previous.nodes);
+      setEdges(previous.edges);
+      return newPast;
+    });
+  }, [setNodes, setEdges]);
+
+  const handleRedo = useCallback(() => {
+    setFuture(f => {
+      if (f.length === 0) return f;
+      const next = f[0];
+      const newFuture = f.slice(1);
+      setPast(p => [...p, { nodes: nodesRef.current, edges: edgesRef.current }]);
+      setNodes(next.nodes);
+      setEdges(next.edges);
+      return newFuture;
+    });
+  }, [setNodes, setEdges]);
+
+  const handleInteractStart = useCallback(() => {
+    setIsInteracting(true);
+    pushHistory();
+  }, [pushHistory]);
   const handleInteractEnd = useCallback(() => setIsInteracting(false), []);
 
   const lastEdgeStyle = useRef<EdgeStyleVariant>('solid');
@@ -114,6 +150,15 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
   nodesRef.current = nodes;
   edgesRef.current = edges;
   const isDirtyRef = useRef(false);
+
+  const mousePosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   /* ── Sync Positions ── */
   const syncPositionToData = useCallback((nds: Node[], mode: 'logic' | 'presentation') => {
@@ -299,6 +344,19 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
       const syncedNodes = syncPositionToData(nodesRef.current, canvasMode);
       const finalNodes = syncedNodes.map(n => {
         const d = (n.data || {}) as CanvasNodeData;
+        
+        // 讓插件可以讀取連接的形狀節點顏色
+        if (n.type === 'pluginNode') {
+          const connectedShapeColors: Record<string, { bg: string, border: string, text: string }> = {};
+          edgesRef.current.filter(e => e.target === n.id).forEach(e => {
+            const srcNode = syncedNodes.find(sn => sn.id === e.source);
+            if (srcNode && srcNode.type === 'shapeNode') {
+              connectedShapeColors[e.source] = resolveNodeColors(srcNode.data as CanvasNodeData);
+            }
+          });
+          d.connectedShapeColors = connectedShapeColors;
+        }
+
         console.log(`[Pipeline Frontend] Executing node ${n.id} (${d.label}) [${d.nodePluginId}]`);
         console.log(`[Pipeline Frontend] Passed Config:`, d.nodeInputConfig);
         return n;
@@ -444,6 +502,7 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
     ?? { x: 300, y: 220 }, []);
 
   const addTextNode = useCallback(() => {
+    pushHistory();
     const c = center();
     const nodeId = `text-${Date.now()}`;
     const newNode = makeTextNode(nodeId, c.x - 70, c.y - 20);
@@ -458,6 +517,7 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
   }, [setNodes, center, scheduleAutoSave]);
 
   const addStickyNode = useCallback(() => {
+    pushHistory();
     const c = center();
     const nodeId = `sticky-${Date.now()}`;
     const newNode = makeStickyNode(nodeId, c.x - 90, c.y - 60);
@@ -473,6 +533,7 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
 
   /* ── Grouping ── */
   const groupSelectedNodes = useCallback(() => {
+    pushHistory();
     const selected = nodesRef.current.filter(n => n.selected && !n.parentId);
     if (selected.length < 2) return;
     const xs = selected.map(n => n.position.x);
@@ -494,6 +555,7 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
 
   /* ── Ungroup ── */
   const ungroupNode = useCallback((groupId: string) => {
+    pushHistory();
     setNodes(nds => {
       const group = nds.find(n => n.id === groupId);
       if (!group) return nds;
@@ -513,6 +575,7 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
   const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (!rfInstance.current) return;
+    pushHistory();
 
     // ── 1. Plugin node drop from NodeLibrary ──────────────────────────────
     const pluginRaw = e.dataTransfer.getData('application/vnd.synapse.node');
@@ -734,16 +797,130 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
   }, [setEdges, scheduleAutoSave, selectedEdgeId]);
 
   /* ── Keyboard shortcuts ── */
-  const onKeyDown = useCallback((e: React.KeyboardEvent) => {
+  const onKeyDown = useCallback(async (e: React.KeyboardEvent) => {
     const tag = (e.target as HTMLElement).tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    // Undo: Ctrl+Z (not shift)
+    if (e.ctrlKey && !e.shiftKey && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); handleUndo(); return; }
+    // Redo: Ctrl+Shift+Z or Ctrl+Y
+    if (e.ctrlKey && (e.shiftKey && (e.key === 'Z' || e.key === 'z') || (!e.shiftKey && (e.key === 'y' || e.key === 'Y')))) { e.preventDefault(); handleRedo(); return; }
+
     if (e.ctrlKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); void saveCanvas(); return; }
-    if (e.key === 't' || e.key === 'T') addTextNode();
-    if (e.key === 's' || e.key === 'S') addStickyNode();
-    if (e.key === 'g' || e.key === 'G') groupSelectedNodes();
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNode) onDeleteNode(selectedNode.id);
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEdge) onDeleteEdge(selectedEdge.id);
-  }, [addTextNode, addStickyNode, groupSelectedNodes, saveCanvas, onDeleteNode, onDeleteEdge, selectedNode, selectedEdge]);
+
+    // Copy: Ctrl+C
+    if (e.ctrlKey && (e.key === 'c' || e.key === 'C')) {
+      e.preventDefault();
+      const selectedNodes = nodesRef.current.filter(n => n.selected);
+      const selectedEdges = edgesRef.current.filter(e => e.selected);
+      if (selectedNodes.length || selectedEdges.length) {
+        await navigator.clipboard.writeText(JSON.stringify({ type: 'synapse-canvas-clipboard', nodes: selectedNodes, edges: selectedEdges }));
+      }
+      return;
+    }
+
+    // Cut: Ctrl+X
+    if (e.ctrlKey && (e.key === 'x' || e.key === 'X')) {
+      e.preventDefault();
+      const selectedNodes = nodesRef.current.filter(n => n.selected);
+      const selectedEdges = edgesRef.current.filter(e => e.selected);
+      if (selectedNodes.length || selectedEdges.length) {
+        await navigator.clipboard.writeText(JSON.stringify({ type: 'synapse-canvas-clipboard', nodes: selectedNodes, edges: selectedEdges }));
+        pushHistory();
+        const selectedNodeIds = new Set(selectedNodes.map(n => n.id));
+        const selectedEdgeIds = new Set(selectedEdges.map(e => e.id));
+        setNodes(nds => nds.filter(n => !selectedNodeIds.has(n.id) && !selectedNodeIds.has(n.parentId || '')));
+        setEdges(eds => eds.filter(e => !selectedEdgeIds.has(e.id)));
+        setSelectedNodeId(null); setSelectedEdgeId(null);
+        scheduleAutoSave();
+      }
+      return;
+    }
+
+    // Paste: Ctrl+V
+    if (e.ctrlKey && (e.key === 'v' || e.key === 'V')) {
+      e.preventDefault();
+      try {
+        const text = await navigator.clipboard.readText();
+        const data = JSON.parse(text);
+        if (data.type === 'synapse-canvas-clipboard') {
+          pushHistory();
+          const newNodes: Node[] = [];
+          const newEdges: Edge[] = [];
+          const idMap = new Map<string, string>();
+          
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          data.nodes.forEach((n: Node) => {
+            if (n.position.x < minX) minX = n.position.x;
+            if (n.position.y < minY) minY = n.position.y;
+            if (n.position.x > maxX) maxX = n.position.x;
+            if (n.position.y > maxY) maxY = n.position.y;
+          });
+          
+          let offsetX = 20, offsetY = 20;
+          if (data.nodes.length > 0) {
+            const pasteCenter = rfInstance.current?.screenToFlowPosition(mousePosRef.current) ?? center();
+            const groupCenterX = (minX + maxX) / 2;
+            const groupCenterY = (minY + maxY) / 2;
+            offsetX = pasteCenter.x - groupCenterX;
+            offsetY = pasteCenter.y - groupCenterY;
+            offsetX += (Math.random() - 0.5) * 20;
+            offsetY += (Math.random() - 0.5) * 20;
+          }
+
+          data.nodes.forEach((n: Node) => {
+            const newId = `${n.type}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            idMap.set(n.id, newId);
+            newNodes.push({
+              ...n,
+              id: newId,
+              selected: true,
+              position: { x: n.position.x + offsetX, y: n.position.y + offsetY },
+              data: { ...n.data, logicPosition: undefined, presentationPosition: undefined }
+            });
+          });
+          
+          data.edges.forEach((e: Edge) => {
+            if (idMap.has(e.source) && idMap.has(e.target)) {
+              const newId = `e-${idMap.get(e.source)}-${idMap.get(e.target)}-${Date.now()}`;
+              newEdges.push({
+                ...e,
+                id: newId,
+                source: idMap.get(e.source)!,
+                target: idMap.get(e.target)!,
+                selected: true
+              });
+            }
+          });
+
+          setNodes(nds => [...nds.map(n => ({ ...n, selected: false } as Node)), ...newNodes]);
+          setEdges(eds => [...eds.map(e => ({ ...e, selected: false } as Edge)), ...newEdges]);
+          scheduleAutoSave();
+        }
+      } catch (err) {
+        // Not canvas data or clipboard error
+      }
+      return;
+    }
+
+    if (e.key === 't' || e.key === 'T') { addTextNode(); }
+    if (e.key === 's' || e.key === 'S') { addStickyNode(); }
+    if (e.key === 'g' || e.key === 'G') { groupSelectedNodes(); }
+
+    if (e.key === 'Delete' || e.key === 'Backspace') { 
+      const selectedNodes = nodesRef.current.filter(n => n.selected);
+      const selectedEdges = edgesRef.current.filter(e => e.selected);
+      if (selectedNodes.length || selectedEdges.length) {
+        pushHistory();
+        const selectedNodeIds = new Set(selectedNodes.map(n => n.id));
+        const selectedEdgeIds = new Set(selectedEdges.map(e => e.id));
+        setNodes(nds => nds.filter(n => !selectedNodeIds.has(n.id) && !selectedNodeIds.has(n.parentId || '')));
+        setEdges(eds => eds.filter(e => !selectedEdgeIds.has(e.id)));
+        setSelectedNodeId(null); setSelectedEdgeId(null);
+        scheduleAutoSave();
+      }
+    }
+  }, [addTextNode, addStickyNode, groupSelectedNodes, saveCanvas, onDeleteNode, onDeleteEdge, selectedNode, selectedEdge, handleUndo, handleRedo, pushHistory, setNodes, setEdges, scheduleAutoSave, center]);
   const saveLabel = saveStatus === 'saving' ? t.canvas.panel.saving : saveStatus === 'saved' ? t.canvas.panel.saved : saveStatus === 'error' ? t.canvas.panel.loadError : t.canvas.panel.saveShortcut;
 
   if (!isLoaded) return (
@@ -778,6 +955,7 @@ const CanvasEditorContent: React.FC<CanvasEditorContentProps> = ({ file, onFileS
         connectionMode={ConnectionMode.Loose}
         fitView colorMode={isDarkTheme(theme) ? 'dark' : 'light'} deleteKeyCode={null}
         snapToGrid={snapEnabled} snapGrid={SNAP_GRID}
+        minZoom={0.01} maxZoom={100}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1.5} color={isDarkTheme(theme) ? '#555555' : '#aaaaaa'} />
         <Controls />

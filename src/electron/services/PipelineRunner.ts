@@ -207,7 +207,8 @@ export class PipelineRunner {
       // 合併靜態配置 (nodeInputConfig) 與動態輸入 (executionContext)
       const combinedInputs = {
         ...(node.data.nodeInputConfig || {}),
-        ...executionContext
+        ...executionContext,
+        ...(node.data.connectedShapeColors ? { connectedShapeColors: node.data.connectedShapeColors } : {})
       };
 
       // 自動型別轉換 (Auto Type Conversion)
@@ -286,8 +287,13 @@ export class PipelineRunner {
             right: baseData
           };
         } else {
-          // 一般畫布節點：透傳輸入資料並掛上 label
-          this.contextData[node.id] = { ...executionContext, label: node.data.label };
+          // 一般畫布節點：透傳輸入資料並掛上 label 等屬性
+          this.contextData[node.id] = { 
+            ...executionContext, 
+            label: node.data.label,
+            colorKey: node.data.colorKey,
+            customColor: node.data.customColor
+          };
         }
         break;
     }
